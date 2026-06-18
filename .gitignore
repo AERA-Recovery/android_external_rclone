@@ -1,6 +1,7 @@
 *~
 _junk/
 rclone
+!prebuilt/rclone
 rclone.exe
 build
 /docs/public/

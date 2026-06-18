@@ -65,3 +65,14 @@ cc_prebuilt_binary {
         none: true,
     },
 }
+
+cc_prebuilt_binary {
+    name: "rclone_prebuilt",
+    srcs: ["prebuilt/rclone"],
+    stem: "rclone",
+    recovery: true,
+    compile_multilib: "64",
+    strip: {
+        none: true,
+    },
+}
