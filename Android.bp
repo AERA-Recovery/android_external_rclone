@@ -2,75 +2,75 @@ package {
     default_visibility: ["//visibility:public"],
 }
 
-genrule {
-    name: "rclone_gen",
-    srcs: [
-        "go.mod",
-        "go.sum",
-        "vendor/modules.txt",
-
-        // Go source
-        "**/*.go",
-        "**/*.s",
-
-        // Vendored deps
-        "vendor/**/*",
-
-        // Go embed assets required by rclone
-        "**/*.md",
-        "lib/http/templates/**/*",
-    ],
-
-    out: ["rclone"],
-
-    cmd: "SANDBOX_ROOT=$$PWD && " +
-        "TOP=$${ANDROID_BUILD_TOP:-$$(cd $$SANDBOX_ROOT/../../../../.. && pwd)} && " +
-        "GO_BIN=$$TOP/prebuilts/go/linux-x86/bin/go && " +
-        "OUT_FILE=$$SANDBOX_ROOT/$(out) && " +
-        "OUT_DIR=$$(dirname $$OUT_FILE) && " +
-        "GOCACHE_DIR=$$SANDBOX_ROOT/gocache && " +
-        "GOMODCACHE_DIR=$$SANDBOX_ROOT/gomodcache && " +
-        "TMPDIR=$$SANDBOX_ROOT/tmp && " +
-        "mkdir -p $$OUT_DIR $$GOCACHE_DIR $$GOMODCACHE_DIR $$TMPDIR && " +
-        "if [ ! -x $$GO_BIN ]; then echo \"ERROR: Go not found at $$GO_BIN\"; exit 1; fi && " +
-        "cd external/rclone && " +
-        "env -i " +
-        "HOME=$$TMPDIR " +
-        "TMPDIR=$$TMPDIR " +
-        "PATH=$$TOP/prebuilts/go/linux-x86/bin:/usr/bin:/bin " +
-        "GOROOT=$$TOP/prebuilts/go/linux-x86 " +
-        "GOOS=linux " +
-        "GOARCH=arm64 " +
-        "CGO_ENABLED=0 " +
-        "GOTOOLCHAIN=local " +
-        "GOCACHE=$$GOCACHE_DIR " +
-        "GOMODCACHE=$$GOMODCACHE_DIR " +
-        "$$GO_BIN build " +
-        "-v " +
-        "-trimpath " +
-        "-buildvcs=false " +
-        "-mod=vendor " +
-        "-ldflags '-s -w -buildid= -X github.com/rclone/rclone/fs.Version=v1.69.3-orangefox' " +
-        "-o $$OUT_FILE " +
-        ".",
-}
-
-cc_prebuilt_binary {
-    name: "rclone",
-    srcs: [":rclone_gen"],
-    stem: "rclone",
-    recovery: true,
-    compile_multilib: "64",
-    strip: {
-        none: true,
-    },
-}
+// Source-built rclone. Keep this block around so it can be restored easily
+// when a build environment has the required Go prebuilt.
+//
+// genrule {
+//     name: "rclone_gen",
+//     srcs: [
+//         "go.mod",
+//         "go.sum",
+//         "vendor/modules.txt",
+//
+//         // Go source
+//         "**/*.go",
+//         "**/*.s",
+//
+//         // Vendored deps
+//         "vendor/**/*",
+//
+//         // Go embed assets required by rclone
+//         "**/*.md",
+//         "lib/http/templates/**/*",
+//     ],
+//
+//     out: ["rclone"],
+//
+//     cmd: "SANDBOX_ROOT=$$PWD && " +
+//         "TOP=$${ANDROID_BUILD_TOP:-$$(cd $$SANDBOX_ROOT/../../../../.. && pwd)} && " +
+//         "GO_BIN=$$TOP/prebuilts/go/linux-x86/bin/go && " +
+//         "OUT_FILE=$$SANDBOX_ROOT/$(out) && " +
+//         "OUT_DIR=$$(dirname $$OUT_FILE) && " +
+//         "GOCACHE_DIR=$$SANDBOX_ROOT/gocache && " +
+//         "GOMODCACHE_DIR=$$SANDBOX_ROOT/gomodcache && " +
+//         "TMPDIR=$$SANDBOX_ROOT/tmp && " +
+//         "mkdir -p $$OUT_DIR $$GOCACHE_DIR $$GOMODCACHE_DIR $$TMPDIR && " +
+//         "if [ ! -x $$GO_BIN ]; then echo \"ERROR: Go not found at $$GO_BIN\"; exit 1; fi && " +
+//         "cd external/rclone && " +
+//         "env -i " +
+//         "HOME=$$TMPDIR " +
+//         "TMPDIR=$$TMPDIR " +
+//         "PATH=$$TOP/prebuilts/go/linux-x86/bin:/usr/bin:/bin " +
+//         "GOROOT=$$TOP/prebuilts/go/linux-x86 " +
+//         "GOOS=linux " +
+//         "GOARCH=arm64 " +
+//         "CGO_ENABLED=0 " +
+//         "GOTOOLCHAIN=local " +
+//         "GOCACHE=$$GOCACHE_DIR " +
+//         "GOMODCACHE=$$GOMODCACHE_DIR " +
+//         "$$GO_BIN build " +
+//         "-v " +
+//         "-trimpath " +
+//         "-buildvcs=false " +
+//         "-mod=vendor " +
+//         "-ldflags '-s -w -buildid= -X github.com/rclone/rclone/fs.Version=v1.69.3-orangefox' " +
+//         "-o $$OUT_FILE " +
+//         ".",
+// }
+//
+// cc_prebuilt_binary {
+//     name: "rclone",
+//     srcs: [":rclone_gen"],
+//     stem: "rclone",
+//     recovery: true,
+//     compile_multilib: "64",
+//     strip: {
+//         none: true,
+//     },
+// }
 
 cc_prebuilt_binary {
     name: "rclone_prebuilt",
-    source_module_name: "rclone",
-    prefer: true,
-    overrides: ["rclone"],
     srcs: ["prebuilt/rclone"],
     stem: "rclone",
     recovery: true,
