@@ -68,6 +68,9 @@ cc_prebuilt_binary {
 
 cc_prebuilt_binary {
     name: "rclone_prebuilt",
+    source_module_name: "rclone",
+    prefer: true,
+    overrides: ["rclone"],
     srcs: ["prebuilt/rclone"],
     stem: "rclone",
     recovery: true,
